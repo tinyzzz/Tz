@@ -1,0 +1,12 @@
+body {
+    background-color: azure;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    text-align: center;
+}
+
+#container {
+    background-color: steelblue;
+}

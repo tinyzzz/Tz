@@ -3,46 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <title>Tz</title>
-    <!--<script type="text/javascript" src="script/pixi.min.js"></script>-->
-    <!--<script type="text/javascript" src="script/main.js"></script>-->
-    <script type="text/javascript">
-        // let Application = PIXI.Application,
-        //     Loader = PIXI.loader,
-        //     Resources = PIXI.loader.resources,
-        //     TextureCache = PIXI.utils.TextureCache,
-        //     Sprite = PIXI.Sprite;
-        //
-        // let app = new Application({
-        //     width: 1200,
-        //     height: 800,
-        //     antialias: true,
-        //     transparent: false,
-        //     resolution: 1
-        // });
-        // let img1 = "https://www.baidu.com/img/bd_logo1.png";
-
-        //初始化
-        let src = 'image/pic.png';
-        let canvas = document.createElement('canvas');
-        let img = document.createElement('img');
-        img.setAttribute("crossOrigin", 'Anonymous');
-        img.src = src;
-        img.onload = function (e) {
-            canvas.width = 200;
-            canvas.height = 500;
-            let context = canvas.getContext('2d');
-            context.drawImage(img, 0, 0, img.width / 2, img.height / 2);
-            canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
-
-            canvas.toBlob((blob) => {
-                let link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.click();
-            }, "image/jpeg");
-        };
-
-    </script>
+    <link rel="stylesheet" type="text/css" href="css/main.css"/>
+    <script type="text/javascript" src="script/pixi.min.js"></script>
+    <script type="text/javascript" src="script/gameData.js"></script>
 </head>
-<body>
+<body id="container">
+<p> hello world!! </p>
+<script type="text/javascript">
+    // 初始化
+    'use strict';
+    let Loader = PIXI.Loader.shared,
+        Sprite = PIXI.Sprite,
+        Res = PIXI.LoaderResource,
+        TCache = PIXI.utils.TextureCache,
+        Rect = PIXI.Rectangle;
+    let app = new PIXI.Application({
+        width: Config.View_Width,
+        height: Config.View_Height,
+        antialias: true,
+        transparent: false,
+        resolution: 1,
+    });
+    // 全局变量
+    let sp = {};  //所有图片资源 - 包括背景等等
+    let picSheet;  //所有pic图片json - 仅限32x32大小
+    let gifSheet;  //所有gif图片json - 仅限32x32大小
+    let mapBox;
+
+    // 添加canvas元素
+    document.getElementById("container").appendChild(app.view);
+
+    // 加载图片资源
+    Loader.add(['image/bg.png',
+        'image/tile.json',
+        'image/tile2.json']);
+    Loader.load(onLoaded);
+
+    //  图片资源加载完毕后，会自动调用下面这个函数
+    function onLoaded() {
+        // 图片资源初始化
+        sp.bg = new Sprite(Loader.resources['image/bg.png'].texture);
+        picSheet = Loader.resources['image/tile.json'].spritesheet;
+        gifSheet = Loader.resources['image/tile2.json'].spritesheet;
+
+        // 部分变量初始化
+        mapBox = new PIXI.Container();
+        mapBox.x = Config.Render_MapX;
+        mapBox.y = Config.Render_MapY;
+
+        // 加载背景
+        app.stage.addChild(sp.bg);
+
+        // 加载地图mapBox
+        app.stage.addChild(mapBox);
+
+        // 开始渲染地图
+        renderMap();
+
+    }
+
+    function renderMap() {
+        let level = 0;
+        let layer;
+        let mapPos;
+        let mapVal;
+        let imgID;
+        let tmpSp;
+        let x;
+        let y;
+        for (let row = 0; row < Config.Map_MaxRow; row++) {
+            for (let col = 0; col < Config.Map_MaxCol; col++) {
+                // Layer-0 Terrain
+                layer = 0;
+                mapPos = layer * Config.Map_MaxRow * Config.Map_MaxCol + row * Config.Map_MaxCol + col;
+                mapVal = MapData[level].map[mapPos];
+                if (mapVal > 0) {
+                    imgID = TerrainData[mapVal].imgID;
+                    if (imgID !== undefined) {
+                        tmpSp = getSprite(imgID);
+                        if (tmpSp !== undefined) {
+                            tmpSp.x = col * Config.Map_Cell;
+                            tmpSp.y = row * Config.Map_Cell;
+                            mapBox.addChild(tmpSp);
+                        }
+                    }
+                }
+                // Layer-1 Item
+                layer = 1;
+                mapPos = layer * Config.Map_MaxRow * Config.Map_MaxCol + row * Config.Map_MaxCol + col;
+                mapVal = MapData[level].map[mapPos];
+                if (mapVal > 0) {
+                    imgID = ItemData[mapVal].imgID;
+                    if (imgID !== undefined) {
+                        tmpSp = getSprite(imgID);
+                        if (tmpSp !== undefined) {
+                            tmpSp.x = col * Config.Map_Cell;
+                            tmpSp.y = row * Config.Map_Cell;
+                            mapBox.addChild(tmpSp);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 从spriteSheet中获取Sprite，找不到就返回undefined
+    function getSprite(imgID) {
+        if (imgID[0] === 'p') {
+            imgID += ".png";
+            if (picSheet.textures[imgID] !== undefined) return new Sprite(picSheet.textures[imgID]);
+        }
+        if (imgID[0] === 'g') {
+            imgID += "_1.png";  //Todo
+            if (gifSheet.textures[imgID] !== undefined) return new Sprite(gifSheet.textures[imgID]);
+        }
+        console.log('[Err] image not found in tile.json and tile2.json: ' + imgID);
+        return undefined;
+    }
+
+
+</script>
 </body>
 </html>
