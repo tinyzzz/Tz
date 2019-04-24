@@ -1,2 +1,2 @@
 # Tz
-Js Tower
+JavaScript MagicTower Game
