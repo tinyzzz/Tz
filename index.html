@@ -1,7 +1,48 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Tz</title>
+    <!--<script type="text/javascript" src="script/pixi.min.js"></script>-->
+    <!--<script type="text/javascript" src="script/main.js"></script>-->
+    <script type="text/javascript">
+        // let Application = PIXI.Application,
+        //     Loader = PIXI.loader,
+        //     Resources = PIXI.loader.resources,
+        //     TextureCache = PIXI.utils.TextureCache,
+        //     Sprite = PIXI.Sprite;
+        //
+        // let app = new Application({
+        //     width: 1200,
+        //     height: 800,
+        //     antialias: true,
+        //     transparent: false,
+        //     resolution: 1
+        // });
+        // let img1 = "https://www.baidu.com/img/bd_logo1.png";
+
+        //初始化
+        let src = 'image/pic.png';
+        let canvas = document.createElement('canvas');
+        let img = document.createElement('img');
+        img.setAttribute("crossOrigin", 'Anonymous');
+        img.src = src;
+        img.onload = function (e) {
+            canvas.width = 200;
+            canvas.height = 500;
+            let context = canvas.getContext('2d');
+            context.drawImage(img, 0, 0, img.width / 2, img.height / 2);
+            canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+
+            canvas.toBlob((blob) => {
+                let link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.click();
+            }, "image/jpeg");
+        };
+
+    </script>
 </head>
 <body>
-Hello!
-</body
+</body>
 </html>
