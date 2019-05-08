@@ -9904,7 +9904,7 @@ var PIXI = (function (exports) {
 
 	/**
 	 * The system ticker instance used by {@link PIXI.interaction.InteractionManager} and by
-	 * {@link PIXI.BasePrepare} for core timing functionality that shouldn't usually need to be paused,
+	 * {@link PIXI.BasePrepare} for Core timing functionality that shouldn't usually need to be paused,
 	 * unlike the `shared` ticker which drives visual animations and rendering which may want to be paused.
 	 *
 	 * The property {@link PIXI.Ticker#autoStart} is set to `true` for this instance.
@@ -10035,10 +10035,10 @@ var PIXI = (function (exports) {
 	};
 
 	/*!
-	 * @pixi/core - v5.0.0-rc.3
+	 * @pixi/Core - v5.0.0-rc.3
 	 * Compiled Fri, 22 Mar 2019 16:39:26 UTC
 	 *
-	 * @pixi/core is licensed under the MIT License.
+	 * @pixi/Core is licensed under the MIT License.
 	 * http://www.opensource.org/licenses/mit-license
 	 */
 
@@ -20182,7 +20182,7 @@ var PIXI = (function (exports) {
 	         * If the scene is NOT transparent PixiJS will use a canvas sized fillRect operation every
 	         * frame to set the canvas background color. If the scene is transparent PixiJS will use clearRect
 	         * to clear the canvas every frame. Disable this by setting this to false. For example, if
-	         * your game has a canvas filling background image you often don't need this set.
+	         * your Game has a canvas filling background image you often don't need this set.
 	         *
 	         * @member {boolean}
 	         * @default
@@ -23374,7 +23374,7 @@ var PIXI = (function (exports) {
 	        }
 
 	        // ** FREE TIP **! If an object is not interactive or has no buttons in it
-	        // (such as a game scene!) set interactiveChildren to false for that displayObject.
+	        // (such as a Game scene!) set interactiveChildren to false for that displayObject.
 	        // This will allow PixiJS to completely ignore and bypass checking the displayObjects children.
 	        if (hitTestChildren && displayObject.interactiveChildren && displayObject.children)
 	        {
