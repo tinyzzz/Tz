@@ -2,7 +2,7 @@
 
 class Game {
     // 静态属性
-    static jsList = ['pixi.min', 'gameConfig', 'gameData', 'core'];
+    static jsList = ['pixi.min', 'gameConfig', 'gameData', 'utils', 'core'];
     static dom = {'body': document.body};
 
     // 游戏初始化

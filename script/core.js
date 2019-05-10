@@ -9,7 +9,6 @@ class Core {
     static mapBox = {};    //地图渲染区域
     static roleBox = {};   //玩家渲染区域
 
-
     // 渲染变量
     static app = {};
     static roleMoveTimeLeft = 0;
@@ -37,9 +36,11 @@ class Core {
 
     //  图片资源加载完毕后，会自动调用下面这个函数
     static afterLoaded = function () {
-        let resLoader = PIXI.Loader.shared;
+        // 其他代码初始化
+        Core.initRole();
 
         // 图片资源初始化
+        let resLoader = PIXI.Loader.shared;
         Core.bg = new PIXI.Sprite(resLoader.resources['image/bg.png'].texture);
         Core.picSheet = resLoader.resources['image/tile.json'].spritesheet;
         Core.gifSheet = resLoader.resources['image/tile2.json'].spritesheet;
@@ -65,44 +66,50 @@ class Core {
         Core.app.ticker.add(delta => Core.loop(delta));
     };
 
-    // 处理mapBox点击事件
+    //初始化角色数据
+    static initRole = function () {
+        Role.pos = new Pos(0, 0, 5, 5);
+        Role.tarPos = new Pos(0, 0, 0, 0);
+        Role.newPos = new Pos(0, 0, 0, 0);
+        Role.minLevel = 0;
+        Role.maxLevel = 0;
+    };
+
+    // 手指按下时，开始下达指令
     static  onTouchMapBox = function (event) {
-        if (!Config.Render_RoleMoving) {
-            Config.ClickRow = parseInt(event.data.getLocalPosition(this).y / Config.Map_Cell);
-            Config.ClickCol = parseInt(event.data.getLocalPosition(this).x / Config.Map_Cell);
-            //let hitPos = MapData.getData(Role.pos.level, Config.ClickRow, Config.ClickCol);
-            //log('now hit on : R' + Config.ClickRow + "C" + Config.ClickCol + ' ' + hitPos[0] + ' ' + hitPos[1] + ' ' + hitPos[2]);
-            let a1 = Config.ClickRow + Config.ClickCol - Role.pos.row - Role.pos.col;
-            let a2 = Config.ClickRow - Config.ClickCol - Role.pos.row + Role.pos.col;
-            if (a1 === 0 && a2 === 0) return;
-            if (a1 <= 0 && a2 <= 0) Config.Order = 'W';
-            if (a1 <= 0 && a2 > 0) Config.Order = 'A';
-            if (a1 > 0 && a2 > 0) Config.Order = 'S';
-            if (a1 > 0 && a2 <= 0) Config.Order = 'D';
+        // 如果角色正在移动，则停止后续移动。
+        if (Config.Render_RoleMoving) {
+            Role.movePath = [];
+        } else {
+            //如果角色没有移动，则计算移动路线
+            Global.clickPos = new Pos(Role.pos.level, 0,
+                parseInt(event.data.getLocalPosition(this).y / Config.Map_Cell),
+                parseInt(event.data.getLocalPosition(this).x / Config.Map_Cell));
+            let way = Utils.findPath(Global.clickPos, Role.pos);
+            if (way !== []) Role.movePath = way;
         }
     };
 
-    // 手指抬起时停止下达指令
+    // 手指抬起时，开始执行指令
     static  onTouchMapBoxUp = function () {
-        Config.Order = '';
+        // 开始执行移动
+        if (Role.movePath !==[] ){
+
+        }
     };
 
     // 在mapBox中渲染游戏地图
     static renderMap = function () {
         let level = 0;
-        let mapPos;
         let mapVal;
         let imgID;
         let tmpSp;
         for (let layer = 0; layer < Config.Map_MaxLayer; layer++) {
             for (let row = 0; row < Config.Map_MaxRow; row++) {
                 for (let col = 0; col < Config.Map_MaxCol; col++) {
-                    mapPos = row * Config.Map_MaxCol + col;
-                    mapVal = MapData[level].map[layer][mapPos];
+                    mapVal = MapData.getVal(level, layer, row, col);
                     if (mapVal > 0) {
-                        if (layer === 0) imgID = TerrainData[mapVal].imgID;
-                        if (layer === 1) imgID = ItemData[mapVal].imgID;
-                        if (layer === 2) imgID = MonsterData[mapVal].imgID;
+                        imgID = GameData[layer][mapVal].imgID;
                         if (imgID !== undefined) {
                             tmpSp = Core.getSprite(imgID);
                             if (tmpSp !== undefined) {
@@ -150,11 +157,11 @@ class Core {
 
     // 游戏循环
     static loop = function (delta) {
-        if (Config.Render_RoleMoving === true) {
+        if (Global.Render_RoleMoving === true) {
             if (Core.roleMoveTimeLeft > -1) {
                 // 正在移动
                 Core.roleMoveTimeLeft--;
-                let per = Core.roleMoveTimeLeft / Config.Render_RoleMoveTime;
+                let per = Core.roleMoveTimeLeft / Global.Render_RoleMoveTime;
                 Core.roleBox.x = Config.Map_Cell * ((Role.pos.col - Role.newPos.col) * per + Role.newPos.col);
                 Core.roleBox.y = Config.Map_Cell * ((Role.pos.row - Role.newPos.row) * per + Role.newPos.row);
                 if (Core.roleMoveTimeLeft <= 0) {
@@ -163,17 +170,12 @@ class Core {
                     Role.pos.col = Role.newPos.col;
                     Core.roleBox.x = Role.pos.col * Config.Map_Cell;
                     Core.roleBox.y = Role.pos.row * Config.Map_Cell;
-                    Config.Render_RoleMoving = false;
-                    Core.log(' Finish !' + Config.Order);
+                    Global.Render_RoleMoving = false;
                     //Config.Order = '';
                 }
             }
         } else if (Config.Order !== '') {
             Core.log('Doing order !' + Config.Order);
-            if (Config.Order === 'W') Core.goWalk(0, -1);
-            if (Config.Order === 'A') Core.goWalk(-1, 0);
-            if (Config.Order === 'S') Core.goWalk(0, 1);
-            if (Config.Order === 'D') Core.goWalk(1, 0);
             //Config.Order = '';
         }
     };
@@ -187,12 +189,8 @@ class Core {
         Core.roleMoveTimeLeft = Config.Render_RoleMoveTime;
     }
 
-
     // 统一关闭console.log
     static log(msg) {
         console.log(msg)
     }
 }
-
-
-

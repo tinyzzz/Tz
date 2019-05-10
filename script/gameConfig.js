@@ -1,7 +1,4 @@
 const Config = {
-    Show_DebugLog: true,
-    Order:'',                //玩家下达的指令 W A S D 移动
-
     View_Width: 360,
     View_Height: 360,
 
@@ -17,27 +14,28 @@ const Config = {
     Render_MapX: 36,
     Render_MapY: 36,
 
-    Render_GifSpeed: 0.1,      //帧动画播放速度
-    Render_RoleFacing: 3,      //玩家朝向，只能是1,2,3,4 W1 A2 S3 D4
-    Render_RoleMoving: false,  //玩家是否在移动
-    Render_RoleMoveTime: 2,   //玩家移动时间，单位:帧
-
-    ClickRow: 0,              //在mapBox内部的点击时: clickRow = position.y/map_Cell
-    ClickCol: 0               //在mapBox内部的点击时：clickCol = position.x/map_Cell
+    Render_RoleMoveTime: 2,     //玩家移动时间，单位:帧
+    Render_GifSpeed: 0.1        //帧动画播放速度
 };
+
 
 let Global = {
     FPS: 0,
     init: false,
     state: Config.State_Game,
-    canMove: false
+
+    clickPos: {},
+    Order: '',                //玩家下达的指令 W A S D 移动
 };
 
 let Role = {
-    pos: {level: 0, layer: 0, row: 5, col: 5},
-    newPos: {level: 0, layer: 0, row: 0, col: 0},
-    tarPos: {level: 0, layer: 0, row: 0, col: 0},
-
-    minLevel:0,
-    maxLevel:0
+    pos: {},
+    newPos: {},
+    tarPos: {},
+    facing: 3,             //玩家朝向，只能是1,2,3,4 W1 A2 S3 D4
+    canMove: false,        //玩家是否可以移动
+    isMoving: false,       //玩家是否正在移动
+    movePath: [],          //玩家移动路线
+    minLevel: 0,
+    maxLevel: 0
 };
