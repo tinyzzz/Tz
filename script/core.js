@@ -60,6 +60,7 @@ class Core {
         Core.mapBox.on('pointerup', Core.onTouchMapBoxUp);
         Core.mapBox.on('pointerupoutside', Core.onTouchMapBoxUp);
         Core.app.stage.addChild(Core.mapBox);
+        Core.renderMap();
 
         // 加载路径pathBox
         Core.pathBox = new PIXI.Container();
@@ -79,8 +80,7 @@ class Core {
         }
         Core.roleBox.addChild(Core.roleSP[3]);
 
-        // 开始渲染地图
-        Core.renderMap();
+        // 开始游戏循环
         Core.app.ticker.add(delta => Core.loop(delta));
     };
 
@@ -121,29 +121,6 @@ class Core {
     static  onTouchMapBoxUp = function () {
         Global.clickUp = true;
         Global.clickPos = {};
-    };
-
-    // 如果寻路路径长度大于0，则会自动寻路至下个节点
-    static autoMoveToNextPos = function () {
-        if (Role.movePath.length > 0) {
-            let newPos = Role.movePath.shift();
-            Role.newPos.row = newPos.row;
-            Role.newPos.col = newPos.col;
-            Core.roleMoveTimeLeft = Config_RoleMoveSpeed;
-            Global.Render_RoleMoving = true;
-            //玩家朝向，只能是1,2,3,4 W1 A2 S3 D4
-            if (Role.newPos.row < Role.pos.row) {
-                Role.facing = 1;
-            } else if (Role.newPos.col < Role.pos.col) {
-                Role.facing = 2;
-            } else if (Role.newPos.row > Role.pos.row) {
-                Role.facing = 3;
-            } else if (Role.newPos.col > Role.pos.col) {
-                Role.facing = 4;
-            }
-            Core.setRoleSPFacing(Role.facing);
-            Core.renderPath();
-        }
     };
 
     // 在mapBox中渲染游戏地图
@@ -221,6 +198,29 @@ class Core {
         }
     };
 
+    // 如果寻路路径长度大于0，则会自动寻路至下个节点
+    static moveRoleToNextPos = function () {
+        if (Role.movePath.length > 0) {
+            let newPos = Role.movePath.shift();
+            Role.newPos.row = newPos.row;
+            Role.newPos.col = newPos.col;
+            Core.roleMoveTimeLeft = Config_RoleMoveSpeed;
+            Global.Render_RoleMoving = true;
+            //玩家朝向，只能是1,2,3,4 W1 A2 S3 D4
+            if (Role.newPos.row < Role.pos.row) {
+                Role.facing = 1;
+            } else if (Role.newPos.col < Role.pos.col) {
+                Role.facing = 2;
+            } else if (Role.newPos.row > Role.pos.row) {
+                Role.facing = 3;
+            } else if (Role.newPos.col > Role.pos.col) {
+                Role.facing = 4;
+            }
+            Core.setRoleSPFacing(Role.facing);
+            Core.renderPath();
+        }
+    };
+
     // 从spriteSheet中获取Sprite，找不到就返回undefined
     static getSprite = function (imgID) {
         if (imgID[0] === 'p') {
@@ -243,7 +243,7 @@ class Core {
         // 如果玩家正在移动，那么就继续移动
         if (Global.Render_RoleMoving === true) Core.calcRoleLoc();
         // 如果玩家没有移动，而且松开了点击，而且寻路还没结束，那么继续自动寻路
-        else if (Global.clickUp === true) Core.autoMoveToNextPos();
+        else if (Global.clickUp === true) Core.moveRoleToNextPos();
     };
 
     // 统一关闭console.log
