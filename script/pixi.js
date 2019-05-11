@@ -9904,7 +9904,7 @@ var PIXI = (function (exports) {
 
 	/**
 	 * The system ticker instance used by {@link PIXI.interaction.InteractionManager} and by
-	 * {@link PIXI.BasePrepare} for Core timing functionality that shouldn't usually need to be paused,
+	 * {@link PIXI.BasePrepare} for Core2 timing functionality that shouldn't usually need to be paused,
 	 * unlike the `shared` ticker which drives visual animations and rendering which may want to be paused.
 	 *
 	 * The property {@link PIXI.Ticker#autoStart} is set to `true` for this instance.
@@ -10035,10 +10035,10 @@ var PIXI = (function (exports) {
 	};
 
 	/*!
-	 * @pixi/Core - v5.0.0-rc.3
+	 * @pixi/Core2 - v5.0.0-rc.3
 	 * Compiled Fri, 22 Mar 2019 16:39:26 UTC
 	 *
-	 * @pixi/Core is licensed under the MIT License.
+	 * @pixi/Core2 is licensed under the MIT License.
 	 * http://www.opensource.org/licenses/mit-license
 	 */
 
